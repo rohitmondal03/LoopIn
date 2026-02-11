@@ -1,7 +1,6 @@
 "use client"
 
-import React from "react"
-
+import { useRouter } from 'next/navigation'
 import { useState } from "react"
 import {
   Loader2,
@@ -10,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { AuthInput } from "./auth-input"
+import { signUp } from "@/lib/supabase/auth"
 
 type FormState = "idle" | "loading" | "success" | "error"
 
@@ -21,6 +21,7 @@ interface FieldError {
 }
 
 export function SignUpForm() {
+  const { push } = useRouter();
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -45,14 +46,27 @@ export function SignUpForm() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault()
+
     if (!validate()) return
+
     setFormState("loading")
-    setTimeout(() => {
-      setFormState("success")
-      setTimeout(() => setFormState("idle"), 2000)
-    }, 1500)
+
+    await signUp(email, password, name)
+      .then((error) => {
+        if (error) {
+          setFormState("error")
+          console.log(error)
+        } else {
+          setFormState("success")
+          push("/lobby/23")
+        }
+      })
+      .catch((error) => {
+        setFormState("error")
+        console.log(error)
+      })
   }
 
   const isDisabled = formState === "loading" || formState === "success"

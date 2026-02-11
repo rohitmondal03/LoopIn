@@ -10,6 +10,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { AuthInput } from "./auth-input"
+import { login } from "@/lib/supabase/auth"
+import { useRouter } from "next/navigation"
 
 type FormState = "idle" | "loading" | "success" | "error"
 
@@ -21,6 +23,7 @@ interface FieldError {
 }
 
 export function LoginForm() {
+  const { push } = useRouter();
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [formState, setFormState] = useState<FormState>("idle")
@@ -38,14 +41,23 @@ export function LoginForm() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault()
+
     if (!validate()) return
+
     setFormState("loading")
-    setTimeout(() => {
-      setFormState("success")
-      setTimeout(() => setFormState("idle"), 2000)
-    }, 1500)
+
+    await login(email, password)
+      .then((error) => {
+        if (error) {
+          setFormState("error")
+          console.log(error);
+        } else {
+          setFormState("success")
+          push("/lobby/23")
+        }
+      })
   }
 
   const isDisabled = formState === "loading" || formState === "success"
