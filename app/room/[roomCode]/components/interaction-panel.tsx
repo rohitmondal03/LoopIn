@@ -4,6 +4,8 @@ import React from "react"
 
 import { Send, ArrowUp, GripVertical, SmilePlus, ListMusic, MessageCircle, Sparkles } from "lucide-react"
 import { useState } from "react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 // --- Chat Tab ---
 
@@ -81,7 +83,7 @@ function QueueItem({ item, index }: { item: typeof queueItems[number]; index: nu
 
   return (
     <div className="flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-secondary/30 transition-colors group">
-      <GripVertical className="h-4 w-4 text-muted-foreground/40 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+      {/* <GripVertical className="h-4 w-4 text-muted-foreground/40 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity shrink-0" /> */}
       <span className="text-muted-foreground text-xs font-mono w-5 shrink-0">{index + 1}</span>
       <div className="h-8 w-8 rounded-lg bg-secondary flex items-center justify-center shrink-0">
         {item.type === "youtube" ? (
@@ -126,17 +128,15 @@ function QueueTab() {
           </div>
         )}
       </div>
-      <div className="pt-2 border-t border-border/20">
-        <div className="flex items-center gap-2 glass rounded-xl px-3 py-2">
-          <input
-            type="text"
-            placeholder="Paste a YouTube or Spotify link..."
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-          />
-          <button className="h-7 px-3 rounded-lg bg-primary/20 text-primary text-xs font-medium hover:bg-primary/30 transition-colors">
-            Add
-          </button>
-        </div>
+      <div className="flex items-center gap-2">
+        <Input
+          type="text"
+          placeholder="Paste a YouTube link..."
+          className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
+        />
+        <Button size={"sm"} className="h-7 px-3 rounded-sm bg-primary/20 text-primary text-xs font-medium hover:bg-primary/30 transition-colors">
+          Add
+        </Button>
       </div>
     </div>
   )
@@ -198,18 +198,17 @@ export function InteractionPanel() {
   ]
 
   return (
-    <aside className="glass-strong rounded-2xl p-4 flex flex-col h-full">
+    <aside className="glass-strong rounded-2xl p-4 flex flex-col h-full w-full">
       {/* Tabs */}
       <div className="flex items-center gap-1 mb-3 bg-secondary/40 rounded-xl p-1">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              activeTab === tab.key
-                ? "bg-primary/15 text-primary"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${activeTab === tab.key
+              ? "bg-primary/15 text-primary"
+              : "text-muted-foreground hover:text-foreground"
+              }`}
           >
             {tab.icon}
             {tab.label}

@@ -1,0 +1,4 @@
+ALTER TABLE public.rooms
+  ADD COLUMN room_code TEXT UNIQUE,
+  ADD COLUMN password TEXT,
+  ADD COLUMN is_private BOOLEAN DEFAULT FALSE

@@ -12,67 +12,10 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import RecentRoomItem from "./recent-room-item"
 
 type JoinState = "idle" | "loading" | "error"
 
-interface RecentRoom {
-  id: string
-  name: string
-  isLive: boolean
-  participants: { initials: string; color: string }[]
-}
-
-const recentRooms: RecentRoom[] = [
-  {
-    id: "1",
-    name: "Movie Night",
-    isLive: true,
-    participants: [
-      { initials: "AC", color: "bg-chart-2/30 text-chart-2" },
-      { initials: "SR", color: "bg-primary/30 text-primary" },
-      { initials: "ML", color: "bg-chart-3/30 text-chart-3" },
-    ],
-  },
-  {
-    id: "2",
-    name: "Lo-fi Chill Session",
-    isLive: true,
-    participants: [
-      { initials: "TK", color: "bg-chart-2/30 text-chart-2" },
-      { initials: "JD", color: "bg-primary/30 text-primary" },
-    ],
-  },
-  {
-    id: "3",
-    name: "Documentary Club",
-    isLive: false,
-    participants: [
-      { initials: "RW", color: "bg-chart-3/30 text-chart-3" },
-    ],
-  },
-]
-
-function AvatarGroup({
-  participants,
-}: {
-  participants: RecentRoom["participants"]
-}) {
-  return (
-    <div className="flex -space-x-1.5">
-      {participants.map((p) => (
-        <div
-          key={p.initials}
-          className={cn(
-            "h-6 w-6 rounded-md flex items-center justify-center text-[9px] font-semibold ring-2 ring-card",
-            p.color
-          )}
-        >
-          {p.initials}
-        </div>
-      ))}
-    </div>
-  )
-}
 
 function EmptyRecentRooms() {
   return (
@@ -87,7 +30,11 @@ function EmptyRecentRooms() {
   )
 }
 
-export function JoinRoomCard() {
+type TJoinRoomCardProps = {
+  recentRooms: Room[]
+}
+
+export function JoinRoomCard({ recentRooms }: TJoinRoomCardProps) {
   const [roomCode, setRoomCode] = useState("")
   const [joinState, setJoinState] = useState<JoinState>("idle")
   const [errorMessage, setErrorMessage] = useState("")
@@ -153,7 +100,7 @@ export function JoinRoomCard() {
               className={cn(
                 "h-11 rounded-xl bg-secondary/50 border-border/60 text-foreground placeholder:text-muted-foreground/50 font-mono text-sm focus-visible:ring-primary/40 focus-visible:border-primary/40 transition-colors",
                 joinState === "error" &&
-                  "border-destructive/60 focus-visible:ring-destructive/40"
+                "border-destructive/60 focus-visible:ring-destructive/40"
               )}
             />
             <Button
@@ -198,45 +145,9 @@ export function JoinRoomCard() {
           <EmptyRecentRooms />
         ) : (
           <div className="flex flex-col gap-1.5">
-            {recentRooms.map((room) => (
-              <button
-                key={room.id}
-                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl hover:bg-secondary/40 transition-colors text-left group"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-foreground text-sm font-medium truncate">
-                      {room.name}
-                    </span>
-                    <span
-                      className={cn(
-                        "flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0",
-                        room.isLive
-                          ? "bg-emerald-400/10 text-emerald-400"
-                          : "bg-amber-400/10 text-amber-400"
-                      )}
-                    >
-                      {room.isLive ? (
-                        <>
-                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse-glow" />
-                          Live
-                        </>
-                      ) : (
-                        <>
-                          <Pause className="h-2.5 w-2.5" />
-                          Paused
-                        </>
-                      )}
-                    </span>
-                  </div>
-                  <span className="text-muted-foreground text-xs">
-                    {room.participants.length} watching
-                  </span>
-                </div>
-                <AvatarGroup participants={room.participants} />
-                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-primary transition-colors shrink-0" />
-              </button>
-            ))}
+            {recentRooms.map((room) =>
+              <RecentRoomItem key={room.id} room={room} />
+            )}
           </div>
         )}
       </div>

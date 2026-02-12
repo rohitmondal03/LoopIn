@@ -52,7 +52,7 @@ export function MediaPlayer() {
       )}
 
       {/* Player Container */}
-      <div className="glass-strong rounded-2xl overflow-hidden flex-1 flex flex-col min-h-0">
+      <div className="border-2  border-zinc-400 rounded-2xl overflow-hidden flex-1 flex flex-col min-h-0">
         {/* Video Area */}
         <div className="relative flex-1 bg-background/80 flex items-center justify-center min-h-0">
           {/* Simulated video background */}

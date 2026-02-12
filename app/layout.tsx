@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Playwrite_NZ, Nunito_Sans } from "next/font/google";
+import { Geist, Geist_Mono, Nunito_Sans } from "next/font/google";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import {Toaster} from "@/components/ui/sonner"
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,11 +30,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${nunitoSans.className}`}
-      >
-        {children}
-      </body>
+      <TooltipProvider>
+        <body
+          className={`${nunitoSans.className}`}
+        >
+          <main>{children}</main>
+          <Toaster 
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: "#ffffff",
+                color: "#000000",
+              },
+              duration: 3000,
+            }}
+          /> 
+        </body>
+      </TooltipProvider>
     </html>
   );
 }

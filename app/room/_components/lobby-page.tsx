@@ -1,11 +1,21 @@
-"use client"
-
 import { LobbyNav } from "./lobby-nav"
 import { JoinRoomCard } from "./join-room-card"
 import { CreateRoomCard } from "./create-room-card"
 import { Radio } from "lucide-react"
+import { fetchHostsRecentRooms } from "@/lib/actions/room"
 
-export function LobbyPage() {
+export async function LobbyPage() {
+
+  const recentRooms = await fetchHostsRecentRooms()
+    .then((rooms: Room[]) => {
+      console.log("Recent rooms:", rooms);
+      return rooms;
+    })
+    .catch((error) => {
+      console.error("Error fetching recent rooms:", error);
+      throw new Error("Failed to fetch recent rooms");
+    })
+
   return (
     <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
       {/* Animated background blobs */}
@@ -48,7 +58,7 @@ export function LobbyPage() {
 
         {/* Two Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-3xl">
-          <JoinRoomCard />
+          <JoinRoomCard recentRooms={recentRooms} />
           <CreateRoomCard />
         </div>
 
