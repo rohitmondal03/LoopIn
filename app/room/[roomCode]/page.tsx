@@ -1,4 +1,3 @@
-import { fetchRoomByCode } from "@/lib/actions/room";
 import { LoopInApp } from "./components/loopin-app";
 
 export default async function Page({
@@ -8,11 +7,9 @@ export default async function Page({
 }) {
   const { roomCode } = await params;
 
-  const roomData = await fetchRoomByCode(roomCode);
-
   return (
     <div>
-      <LoopInApp roomData={roomData} />
+      <LoopInApp roomCode={roomCode} />
     </div>
   )
 }

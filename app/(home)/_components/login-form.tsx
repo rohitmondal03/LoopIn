@@ -52,7 +52,6 @@ export function LoginForm() {
       .then((error) => {
         if (error) {
           setFormState("error")
-          console.log(error);
         } else {
           setFormState("success")
           push("/lobby/23")

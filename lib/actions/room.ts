@@ -38,7 +38,6 @@ export async function createRoom(roomData: {
     console.error("Error creating room:", error);
     throw new Error("Failed to create room");
   }
-  console.log(insertedRoomData);
 
   // populate room_participant table with host's details
   const { error: participantError, data } = await (await createServerClient())
@@ -53,7 +52,6 @@ export async function createRoom(roomData: {
     console.error("Error adding host to room_participants:", participantError);
     throw new Error("Failed to add host to room participants");
   }
-  console.log(data);
 
   // Return the new room id so the client can perform navigation.
   return insertedRoomData.room_code;
@@ -88,7 +86,7 @@ export const fetchHostsRecentRooms = async () => {
 export const fetchRoomByCode = async (roomCode: string) => {
   const { data, error } = await (await createServerClient())
     .from("rooms")
-    .select("room_code, name, is_private, created_at, host_id, is_playing")
+    .select("room_code, name, is_private, created_at, host_id, is_playing, id")
     .eq("room_code", roomCode)
     .single();
 
@@ -116,6 +114,4 @@ export const handleRoomNameChange = async (
   }
 
   revalidatePath(`/lobby/${roomCode}`);
-
-  console.log("Room name updated successfully");
 };

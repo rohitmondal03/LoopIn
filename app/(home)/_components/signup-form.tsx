@@ -57,7 +57,6 @@ export function SignUpForm() {
       .then((error) => {
         if (error) {
           setFormState("error")
-          console.log(error)
         } else {
           setFormState("success")
           push("/lobby/23")
@@ -65,7 +64,6 @@ export function SignUpForm() {
       })
       .catch((error) => {
         setFormState("error")
-        console.log(error)
       })
   }
 

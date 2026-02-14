@@ -4,27 +4,21 @@ import { MediaPlayer } from "./media-player"
 import { InteractionPanel } from "./interaction-panel"
 import { createServerClient } from "@/lib/supabase"
 import { redirect } from "next/navigation"
+import { fetchRoomByCode } from "@/lib/actions/room"
 
 type TLoopInApp = {
-  roomData: {
-    room_code: string,
-    name: string,
-    is_private: boolean,
-    created_at: Date,
-    host_id: string,
-    is_playing: boolean
-  };
+  roomCode: string,
 }
 
-export async function LoopInApp({ roomData }: TLoopInApp) {
+export async function LoopInApp({ roomCode }: TLoopInApp) {
   const {
-    room_code: roomCode,
+    created_at,
     host_id,
     name: roomName,
     is_private,
-    created_at,
-    is_playing
-  } = roomData;
+    id,
+  } = await fetchRoomByCode(roomCode);
+
 
   const user = await (await createServerClient()).auth
     .getUser()
@@ -37,7 +31,11 @@ export async function LoopInApp({ roomData }: TLoopInApp) {
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Top Navigation */}
-      <TopNav roomName={roomName} roomCode={roomCode} isHost={isHost} />
+      <TopNav
+        roomName={roomName}
+        roomCode={roomCode}
+        isHost={isHost}
+      />
 
       {/* Main 3-Column Layout */}
       <div className="flex-1 flex gap-3 p-3 min-h-0">
@@ -45,6 +43,7 @@ export async function LoopInApp({ roomData }: TLoopInApp) {
         <div className="hidden lg:flex w-fit shrink-0">
           <RoomPanel
             roomName={roomName}
+            roomId={id}
             roomCode={roomCode}
             isPrivate={is_private}
             createdAt={created_at}
@@ -58,7 +57,11 @@ export async function LoopInApp({ roomData }: TLoopInApp) {
 
         {/* Right Sidebar - Interaction Panel */}
         <div className="hidden md:flex w-80 shrink-0">
-          <InteractionPanel />
+          <InteractionPanel 
+            roomCode={roomCode}
+            roomId={id}
+            userId={user.id}
+          />
         </div>
       </div>
     </div>

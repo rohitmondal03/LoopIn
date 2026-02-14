@@ -8,11 +8,9 @@ export async function LobbyPage() {
 
   const recentRooms = await fetchHostsRecentRooms()
     .then((rooms: Room[]) => {
-      console.log("Recent rooms:", rooms);
       return rooms;
     })
     .catch((error) => {
-      console.error("Error fetching recent rooms:", error);
       throw new Error("Failed to fetch recent rooms");
     })
 

@@ -14,3 +14,11 @@ interface RoomParticipant {
   role: "host" | "participant"
   full_name?: string
 }
+
+interface RoomMessages {
+  id: string
+  room_id: string
+  sender_id: string
+  content: string
+  created_at: Date
+}

@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { createServerClient } from "../supabase";
 
 export const fetchRoomParticipants = async (roomCode: string) => {
@@ -10,7 +11,6 @@ export const fetchRoomParticipants = async (roomCode: string) => {
     .single();
 
   if(!roomData) {
-    console.log("Room not found for code:", roomCode);
     throw new Error("Room not found");
   }
 
@@ -53,6 +53,8 @@ export const fetchRoomParticipants = async (roomCode: string) => {
       };
     }),
   );
+
+  revalidatePath(`/room/${roomCode}`);
 
   return participantDetails as RoomParticipant[];
 };

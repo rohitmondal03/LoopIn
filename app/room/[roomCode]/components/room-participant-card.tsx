@@ -1,13 +1,16 @@
+"use client"
+
 import { useEffect, useState } from "react"
-import { Crown, Wifi, WifiOff } from "lucide-react"
+import { Crown } from "lucide-react"
+import { supabaseClient } from "@/lib/supabase/client";
 import { fetchRoomParticipants } from "@/lib/actions/room-participants";
 
 type TRoomParticipantCardProps = {
   roomCode: string,
+  roomId: string,
 }
 
-
-function RoomParticipantCard({ roomCode }: TRoomParticipantCardProps) {
+function RoomParticipantCard({ roomCode, roomId }: TRoomParticipantCardProps) {
   const [participants, setParticipants] = useState<RoomParticipant[]>([]);
   const [fetching, setFetching] = useState(false);
 
@@ -17,14 +20,63 @@ function RoomParticipantCard({ roomCode }: TRoomParticipantCardProps) {
         setFetching(true);
         const data = await fetchRoomParticipants(roomCode);
         setParticipants(data);
-        console.log(data)
       } catch (error) {
-        console.error("Error fetching participants:", error);
+        throw new Error(error as string);
       } finally {
         setFetching(false);
       }
     })();
   }, [])
+
+  useEffect(() => {
+    if (!roomId) return;
+
+    const channel = supabaseClient
+      .channel(`room_participants_${roomCode}`)
+      .on(
+        "postgres_changes", {
+          event: "*",
+          schema: "public",
+          table: "room_participants",
+          filter: `room_id=eq.${roomId}`,
+        },
+        async (payload) => {
+          try {
+            // refetch participants
+            const { data, error } = await supabaseClient
+              .from("room_participants")
+              .select("user_id, role, joined_at, users(full_name)")
+              .eq("room_id", roomId)
+              .order("joined_at", { ascending: true });
+
+            if (error) {
+              console.error("Error refetching participants:", error);
+              return;
+            }
+
+            const participantDetails = (data || []).map((p: any) => ({
+              ...p,
+              full_name: p.users?.full_name ?? null,
+            })) as RoomParticipant[];
+
+            setParticipants(participantDetails);
+          } catch (err) {
+            console.error("Error handling realtime payload:", err);
+          }
+        }
+      )
+      .subscribe();
+
+
+    return () => {
+      try {
+        channel.unsubscribe();
+      } catch (err) {
+        console.warn("Error unsubscribing channel:", err);
+      }
+    };
+  }, [roomId, roomCode]);
+
 
   return (
     <div className="glass-strong rounded-2xl p-4 flex-1 flex flex-col min-h-0">

@@ -56,7 +56,6 @@ export function CreateRoomCard() {
       })
       .catch((error) => {
         setCreateState("idle")
-        console.log(error)
         // alert(error)
       })
       .finally(() => {

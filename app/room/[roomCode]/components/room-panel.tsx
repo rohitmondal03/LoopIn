@@ -1,23 +1,15 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
-import { Crown, UserPlus, LogOut, Wifi, WifiOff } from "lucide-react"
+import { useMemo, useState } from "react"
+import { UserPlus, LogOut } from "lucide-react"
 import { format, parseISO } from "date-fns"
 import { Button } from "@/components/ui/button"
-import { fetchRoomParticipants } from "@/lib/actions/room-participants"
 import RoomParticipantCard from "./room-participant-card"
 
-const participants = [
-  { id: 1, name: "Jane Doe", initials: "JD", isHost: true, status: "connected" as const, color: "bg-primary" },
-  { id: 2, name: "Alex Chen", initials: "AC", isHost: false, status: "connected" as const, color: "bg-chart-2" },
-  { id: 3, name: "Sam Rivera", initials: "SR", isHost: false, status: "connected" as const, color: "bg-chart-1" },
-  { id: 4, name: "Morgan Lee", initials: "ML", isHost: false, status: "syncing" as const, color: "bg-chart-3" },
-  { id: 5, name: "Taylor Kim", initials: "TK", isHost: false, status: "disconnected" as const, color: "bg-muted-foreground" },
-]
-
-export function RoomPanel({ roomName, roomCode, isPrivate, createdAt }: {
+export function RoomPanel({ roomName, roomCode, roomId, isPrivate, createdAt }: {
   roomName: string,
   roomCode: string,
+  roomId: string,
   isPrivate: boolean,
   createdAt: Date
 }) {
@@ -51,7 +43,7 @@ export function RoomPanel({ roomName, roomCode, isPrivate, createdAt }: {
       </div>
 
       {/* Participants */}
-      <RoomParticipantCard roomCode={roomCode} />
+      <RoomParticipantCard roomId={roomId} roomCode={roomCode} />
 
       {/* Actions */}
       <div className="flex flex-col gap-2">
