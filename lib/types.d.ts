@@ -22,3 +22,17 @@ interface RoomMessages {
   content: string
   created_at: Date
 }
+
+interface RoomMusic {
+  id: string
+  room_id: string
+  added_by: string
+  provider: string
+  video_id: string
+  title: string
+  thumbnail: string
+  duration_seconds: number
+  position: number
+  is_played: boolean
+  added_at: string
+}

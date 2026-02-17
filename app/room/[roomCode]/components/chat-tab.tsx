@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { Send, SmilePlus, Loader } from 'lucide-react'
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input'
@@ -14,6 +14,7 @@ import {
   EmojiPickerFooter,
 } from "@/components/ui/emoji-picker";
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useQuery } from '@tanstack/react-query';
 
 
 type TRoomMessage = RoomMessages & { full_name: string }
@@ -25,10 +26,22 @@ type TChatTabProps = {
 }
 
 function ChatTab({ roomCode, roomId, userId }: TChatTabProps) {
-  const [newMessage, setNewMessage] = useState("")
+  const [newMessage, setNewMessage] = useState("");
   const [roomMessages, setRoomMessages] = useState<TRoomMessage[]>([]);
-  const [isFetching, setFetching] = useState(false);
   const [isSending, setSendStatus] = useState(false);
+
+  const {
+    data,
+    isLoading: isMessageFetching,
+  } = useQuery({
+    queryKey: ["fetch-room-messages", roomCode],
+    queryFn: () => getRoomMessages(roomCode),
+  })
+
+  useEffect(() => {
+    setRoomMessages(data ?? [])
+  }, [data])
+
 
   // send message
   const sendMessage = async (e: React.SubmitEvent) => {
@@ -64,25 +77,6 @@ function ChatTab({ roomCode, roomId, userId }: TChatTabProps) {
         setNewMessage("");
       })
   }
-
-
-  useEffect(() => {
-    (async () => {
-      setFetching(true);
-
-      await getRoomMessages(roomCode)
-        .then(data => {
-          setRoomMessages(data)
-          // console.log("Room Messages: ", data);
-        })
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => {
-          setFetching(false);
-        })
-    })()
-  }, [roomCode])
 
 
   useEffect(() => {
@@ -159,9 +153,11 @@ function ChatTab({ roomCode, roomId, userId }: TChatTabProps) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto scrollbar-thin space-y-1.5 py-2">
-        {isFetching ? (
-          <p>Loading Chats...</p>
-        ) : roomMessages.map((msg, i) => (
+        {isMessageFetching ? (
+          <div className='h-full w-full flex items-center justify-center'>
+            <Loader className="size-6 animate-spin" />
+          </div>
+        ) : roomMessages?.map((msg, i) => (
           <ChatMessage
             key={i}
             message={msg}
@@ -229,7 +225,7 @@ function ChatMessage({ message, ownMessage }: {
       </div> */}
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
-          <span className={`text-xs font-medium w-full ${ownMessage ? "text-primary text-right" : ""}`}>
+          <span className={`text-xs font-medium w-full text-primary ${ownMessage ? "text-right" : ""}`}>
             {ownMessage ? "You" : message.full_name}
           </span>
           {/* <span className="text-[10px] text-muted-foreground">{message.created_at}</span> */}
@@ -243,4 +239,4 @@ function ChatMessage({ message, ownMessage }: {
   )
 }
 
-export default ChatTab
+export default memo(ChatTab)

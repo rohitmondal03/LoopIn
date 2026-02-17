@@ -3,14 +3,14 @@
 import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { RecoilRoot } from "recoil"
-import { fetchRoomByCode } from "../actions/room"
+import { fetchRoomByCode } from "../lib/actions/room"
 
 type TRoomDetailProviderProps = {
   children: React.ReactNode,
   roomCode: string,
 }
 
-function RoomDetailProvider({ children }: TRoomDetailProviderProps) {
+function RoomProvider({ children }: TRoomDetailProviderProps) {
   const [roomCode, setRoomCode] = useState<string>();
   const [roomId, setRoomId] = useState<string>();
   const params = useParams()
@@ -42,4 +42,4 @@ function RoomDetailProvider({ children }: TRoomDetailProviderProps) {
   )
 }
 
-export default RoomDetailProvider;
+export default RoomProvider;

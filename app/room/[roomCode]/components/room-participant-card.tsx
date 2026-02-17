@@ -1,9 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Crown } from "lucide-react"
+import { Crown, Loader } from "lucide-react"
 import { supabaseClient } from "@/lib/supabase/client";
 import { fetchRoomParticipants } from "@/lib/actions/room-participants";
+import { useQuery } from "@tanstack/react-query";
 
 type TRoomParticipantCardProps = {
   roomCode: string,
@@ -12,21 +13,17 @@ type TRoomParticipantCardProps = {
 
 function RoomParticipantCard({ roomCode, roomId }: TRoomParticipantCardProps) {
   const [participants, setParticipants] = useState<RoomParticipant[]>([]);
-  const [fetching, setFetching] = useState(false);
+
+
+  const { data: roomParticipants, isLoading } = useQuery({
+    queryKey: ["fetch-room-participants", roomCode],
+    queryFn: () => fetchRoomParticipants(roomCode),
+  })
 
   useEffect(() => {
-    (async () => {
-      try {
-        setFetching(true);
-        const data = await fetchRoomParticipants(roomCode);
-        setParticipants(data);
-      } catch (error) {
-        throw new Error(error as string);
-      } finally {
-        setFetching(false);
-      }
-    })();
-  }, [])
+    setParticipants(roomParticipants || []);
+  }, [roomParticipants]);
+
 
   useEffect(() => {
     if (!roomId) return;
@@ -35,12 +32,12 @@ function RoomParticipantCard({ roomCode, roomId }: TRoomParticipantCardProps) {
       .channel(`room_participants_${roomCode}`)
       .on(
         "postgres_changes", {
-          event: "*",
-          schema: "public",
-          table: "room_participants",
-          filter: `room_id=eq.${roomId}`,
-        },
-        async (payload) => {
+        event: "*",
+        schema: "public",
+        table: "room_participants",
+        filter: `room_id=eq.${roomId}`,
+      },
+        async () => {
           try {
             // refetch participants
             const { data, error } = await supabaseClient
@@ -85,9 +82,9 @@ function RoomParticipantCard({ roomCode, roomId }: TRoomParticipantCardProps) {
           Participants ({participants.length})
         </h3>
       </div>
-      {fetching ? (
-        <div className="flex-1 flex items-center justify-center">
-          <span className="text-muted-foreground text">Loading participants...</span>
+      {isLoading ? (
+        <div className='h-full w-full flex items-center justify-center'>
+          <Loader className="size-6 animate-spin" />
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto scrollbar-thin space-y-1">

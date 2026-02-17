@@ -1,4 +1,4 @@
-import RoomDetailProvider from '@/lib/providers/room-detail-provider'
+import RoomDetailProvider from '@/providers/room-provider'
 import { createServerClient } from '@/lib/supabase'
 
 type TRoomLayoutProps = {

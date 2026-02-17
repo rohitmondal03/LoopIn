@@ -1,18 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Nunito_Sans } from "next/font/google";
+import { Nunito_Sans } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import {Toaster} from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner"
+import QueryProviders from "@/providers/query-provider";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 const nunitoSans = Nunito_Sans({
   style: "normal",
@@ -31,20 +22,20 @@ export default function RootLayout({
   return (
     <html lang="en">
       <TooltipProvider>
-        <body
-          className={`${nunitoSans.className}`}
-        >
-          <main>{children}</main>
-          <Toaster 
-            position="top-right"
-            toastOptions={{
-              style: {
-                background: "#ffffff",
-                color: "#000000",
-              },
-              duration: 3000,
-            }}
-          /> 
+        <body className={`${nunitoSans.className}`}>
+          <QueryProviders>
+            <main>{children}</main>
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                style: {
+                  background: "#ffffff",
+                  color: "#000000",
+                },
+                duration: 3000,
+              }}
+            />
+          </QueryProviders>
         </body>
       </TooltipProvider>
     </html>

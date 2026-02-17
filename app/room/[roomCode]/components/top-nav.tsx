@@ -5,7 +5,7 @@ import { Drawer, DrawerTrigger } from "@/components/ui/drawer"
 import { Copy, Settings, ChevronDown, Radio } from "lucide-react"
 import { toast } from "sonner"
 import SettingsDrawer from "./settings-drawer"
-import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 type TTopNavProps = {
   roomCode: string,
@@ -89,6 +89,9 @@ export function TopNav({ roomCode, isHost, roomName }: TTopNavProps) {
               <ChevronDown className="size-3.5 text-muted-foreground" />
             </button>
           </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            hello
+          </DropdownMenuContent>
         </DropdownMenu>
       </div>
     </nav>

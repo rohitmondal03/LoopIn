@@ -56,7 +56,7 @@ export async function LoopInApp({ roomCode }: TLoopInApp) {
         </div>
 
         {/* Right Sidebar - Interaction Panel */}
-        <div className="hidden md:flex w-80 shrink-0">
+        <div className="hidden md:flex w-96 shrink-0">
           <InteractionPanel 
             roomCode={roomCode}
             roomId={id}

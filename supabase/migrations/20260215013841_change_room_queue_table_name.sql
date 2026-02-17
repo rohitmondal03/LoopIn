@@ -1,0 +1,1 @@
+ALTER TABLE public.room_queue RENAME TO room_music_queue;
