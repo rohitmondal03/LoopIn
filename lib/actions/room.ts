@@ -19,6 +19,11 @@ export async function createRoom(roomData: {
     throw new Error("Unauthorized");
   }
 
+  if (isPrivate && (!roomPassword || roomPassword?.trim().length === 0)) {
+    console.error("Room password is required");
+    throw new Error("Room password is required");
+  }
+
   // add new room's details to database
   const { data: insertedRoomData, error } = await (
     await createServerClient()
@@ -40,7 +45,7 @@ export async function createRoom(roomData: {
   }
 
   // populate room_participant table with host's details
-  const { error: participantError, data } = await (await createServerClient())
+  const { error: participantError } = await (await createServerClient())
     .from("room_participants")
     .insert({
       room_id: insertedRoomData.id,
@@ -98,6 +103,32 @@ export const fetchRoomByCode = async (roomCode: string) => {
   return data;
 };
 
+// fetch Room's basic details
+export const fetchRoomsBasicDetailsByCode = async (roomCode: string) => {
+  const { data, error } = await (await createServerClient())
+    .from("rooms")
+    .select("room_code, name, host_id, is_playing")
+    .eq("room_code", roomCode)
+    .single();
+
+  if(error) {
+    console.error("Error fetching rooms:", error);
+    throw new Error("Failed to fetch rooms");
+  }
+
+  if(!data) {
+    console.error("Room not found");
+    throw new Error("Room not found");
+  }
+
+  return data as {
+    room_code: string;
+    name: string;
+    host_id: string;
+    is_playing: boolean;
+  }
+}
+
 // handle ROOM NAME change
 export const handleRoomNameChange = async (
   roomCode: string,
@@ -108,10 +139,31 @@ export const handleRoomNameChange = async (
     .update({ name: newRoomName })
     .eq("room_code", roomCode);
 
-  if(error) {
-    console.error("Can't update new name ", error)
-    throw new Error("Can't update new name")
+  if (error) {
+    console.error("Can't update new name ", error);
+    throw new Error("Can't update new name");
   }
 
   revalidatePath(`/lobby/${roomCode}`);
+};
+
+// check if room is private or not
+export const isRoomPrivate = async (roomCode: string) => {
+  const { data, error } = await (await createServerClient())
+    .from("rooms")
+    .select("is_private")
+    .eq("room_code", roomCode.trim())
+    .single();
+
+  if(error) {
+    console.error("Error fetching room:", error);
+    throw new Error("Failed to fetch room");
+  }
+
+  if(!data) {
+    console.error("Room not found");
+    throw new Error("Check ROOM CODE and try again");
+  }
+
+  return data as { is_private: boolean };
 };

@@ -1,5 +1,6 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
 import { Bell, ChevronDown, Radio } from "lucide-react"
 import { useState } from "react"
 
@@ -40,15 +41,15 @@ export function LobbyNav() {
         </button>
 
         {/* Profile avatar */}
-        <button className="flex items-center gap-2 glass rounded-xl px-2.5 py-1.5 hover:bg-secondary/60 transition-colors">
-          <div className="h-7 w-7 rounded-lg bg-primary/30 flex items-center justify-center text-primary font-semibold text-xs">
+        <Button className="flex items-center gap-2 glass rounded-xl px-2.5 py-1.5 hover:bg-secondary/60 transition-colors">
+          <div className="size-7 rounded-lg bg-primary/30 flex items-center justify-center text-primary font-semibold text-xs">
             JD
           </div>
           <span className="hidden sm:block text-foreground text-sm font-medium">
             Jane
           </span>
           <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-        </button>
+        </Button>
       </div>
     </nav>
   )

@@ -1,5 +1,6 @@
 "use server"
 
+import { redirect } from "next/navigation";
 import { createServerClient } from ".";
 
 export const signUp = async (email: string, password: string, name: string) => {
@@ -15,7 +16,10 @@ export const signUp = async (email: string, password: string, name: string) => {
     },
   });
 
-  return error;
+  if(error) {
+    console.error("Error signing up:", error);
+    throw new Error(error.message);
+  }
 };
 
 export const login = async (email: string, password: string) => {
@@ -26,5 +30,10 @@ export const login = async (email: string, password: string) => {
     password,
   });
 
-  return error;
+  if(error) {
+    console.log(error);
+    throw new Error(error.message);
+  }
+  
+  redirect(`/room`);
 }

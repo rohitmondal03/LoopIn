@@ -3,15 +3,12 @@
 import React from "react"
 
 import { useState } from "react"
-import {
-  Loader2,
-  CheckCircle2,
-} from "lucide-react"
+import { toast } from "sonner"
+import { Loader2, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { AuthInput } from "./auth-input"
 import { login } from "@/lib/supabase/auth"
-import { useRouter } from "next/navigation"
 
 type FormState = "idle" | "loading" | "success" | "error"
 
@@ -23,7 +20,6 @@ interface FieldError {
 }
 
 export function LoginForm() {
-  const { push } = useRouter();
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [formState, setFormState] = useState<FormState>("idle")
@@ -49,13 +45,31 @@ export function LoginForm() {
     setFormState("loading")
 
     await login(email, password)
-      .then((error) => {
+      .then(() => {
+        setFormState("success");
+        toast.success("Login successful !!", {
+          icon: "😎",
+          style: {
+            background: "white",
+            color: "black"
+          }
+        })
+      })
+      .catch((error) => {
         if (error) {
-          setFormState("error")
-        } else {
-          setFormState("success")
-          push("/lobby/23")
+          setFormState("error");
+          toast.error("Cannot login !!", {
+            description: error.message,
+            icon: "😢",
+            style: {
+              background: "red",
+              color: "white"
+            }
+          });
         }
+      })
+      .finally(() => {
+        setFormState("idle")
       })
   }
 

@@ -10,9 +10,10 @@ export async function LobbyPage() {
     .then((rooms: Room[]) => {
       return rooms;
     })
-    .catch((error) => {
+    .catch(() => {
       throw new Error("Failed to fetch recent rooms");
     })
+
 
   return (
     <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">

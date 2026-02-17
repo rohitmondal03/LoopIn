@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { AuthInput } from "./auth-input"
 import { signUp } from "@/lib/supabase/auth"
+import { toast } from 'sonner'
 
 type FormState = "idle" | "loading" | "success" | "error"
 
@@ -54,16 +55,31 @@ export function SignUpForm() {
     setFormState("loading")
 
     await signUp(email, password, name)
-      .then((error) => {
-        if (error) {
-          setFormState("error")
-        } else {
-          setFormState("success")
-          push("/lobby/23")
-        }
+      .then(() => {
+        setFormState("success");
+        toast.success("Acocunt created successfully !!", {
+          icon: "😎",
+          style: {
+            background: "white",
+            color: "black"
+          }
+        })
       })
       .catch((error) => {
-        setFormState("error")
+        if (error) {
+          setFormState("error");
+          toast.error("An error occured while creating your account !!", {
+            description: error.message,
+            icon: "😢",
+            style: {
+              background: "red",
+              color: "white"
+            }
+          });
+        }
+      })
+      .finally(() => {
+        setFormState("idle")
       })
   }
 

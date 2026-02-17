@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createServerClient } from "../supabase";
+import { fetchUserNameByID } from "./users";
 
 export const fetchRoomParticipants = async (roomCode: string) => {
   const { data: roomData, error: roomError } = await (await createServerClient())
@@ -32,24 +33,11 @@ export const fetchRoomParticipants = async (roomCode: string) => {
 
   const participantDetails = await Promise.all(
     data.map(async (participant) => {
-      const { data: userData, error: userError } = await (
-        await createServerClient()
-      )
-        .from("users")
-        .select("full_name")
-        .eq("id", participant.user_id)
-        .single();
-
-      if (userError) {
-        console.error("Error fetching user details:", userError);
-        throw new Error("Failed to fetch user details");
-      } else if (!userData) {
-        return [] as RoomParticipant[];
-      }
+      const userName = await fetchUserNameByID(participant.user_id);
 
       return {
         ...(participant as RoomParticipant),
-        full_name: userData.full_name,
+        full_name: userName,
       };
     }),
   );
