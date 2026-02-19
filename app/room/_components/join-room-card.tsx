@@ -2,22 +2,17 @@
 
 import React, { useState } from "react"
 import {
-  Loader2,
-  AlertCircle,
   ArrowRight,
   Link2,
   Users,
   Loader,
 } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
 import RecentRoomItem from "./recent-room-item"
-import { isRoomPrivate } from "@/lib/actions/room"
-import { toast } from "sonner"
+import { isRoomOwner, isRoomPrivate } from "@/lib/actions/room"
 import { RoomPasswordDialog } from "./room-password-dialog"
-
-type JoinState = "idle" | "loading" | "error"
 
 
 function EmptyRecentRooms() {
@@ -60,6 +55,21 @@ export function JoinRoomCard({ recentRooms }: TJoinRoomCardProps) {
 
     setLoading(true);
 
+    await isRoomOwner(roomCode)
+      .then(isOwner => {
+        if (isOwner) {
+          toast.error("Cannot join your own room", {
+            icon: "⚠️",
+            style: {
+              background: "red",
+              color: "white",
+            }
+          })
+        }
+
+        return;
+      })
+
     // check if room is private
     await isRoomPrivate(roomCode)
       .then((data) => {
@@ -77,8 +87,8 @@ export function JoinRoomCard({ recentRooms }: TJoinRoomCardProps) {
       <div className="glass-strong rounded-2xl p-6 flex flex-col h-full">
         {/* Header */}
         <div className="flex items-center gap-3 mb-5">
-          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <Link2 className="h-5 w-5 text-primary" />
+          <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <Link2 className="size-5 text-primary" />
           </div>
           <div>
             <h3 className="text-foreground font-semibold text-base">
@@ -141,15 +151,14 @@ export function JoinRoomCard({ recentRooms }: TJoinRoomCardProps) {
 
         {/* Recent Rooms */}
         <div className="flex-1 mt-3 overflow-y-auto scrollbar-thin">
-          {recentRooms.length === 0 ? (
-            <EmptyRecentRooms />
-          ) : (
-            <div className="flex flex-col gap-1.5">
-              {recentRooms.map((room) =>
-                <RecentRoomItem key={room.id} room={room} />
-              )}
-            </div>
-          )}
+          {recentRooms.length === 0 ?
+            <EmptyRecentRooms /> : (
+              <div className="flex flex-col gap-1.5">
+                {recentRooms.map((room) =>
+                  <RecentRoomItem key={room.id} room={room} />
+                )}
+              </div>
+            )}
         </div>
       </div>
     </>

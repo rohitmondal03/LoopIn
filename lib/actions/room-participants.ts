@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createServerClient } from "../supabase";
 import { fetchUserNameByID } from "./users";
+import { fetchRoomByCode } from "./room";
 
 export const fetchRoomParticipants = async (roomCode: string) => {
   const { data: roomData, error: roomError } = await (await createServerClient())
@@ -46,3 +47,23 @@ export const fetchRoomParticipants = async (roomCode: string) => {
 
   return participantDetails as RoomParticipant[];
 };
+
+// add participant to room by roomCode
+export const addParticipantToRoom = async (roomCode: string, userId: string) => {
+  // get ROOM DETAILS from ROOM CODE
+  const roomDetails = await fetchRoomByCode(roomCode);
+
+  // add participant to ROOM PARTICIPANTS
+  const { error: roomError } = await (await createServerClient())
+    .from("room_participants")
+    .insert({ 
+      room_id: roomDetails.id, 
+      user_id: userId,
+      role: "viewer",
+    })
+
+  if(roomError) {
+    console.error("Error adding participant to room:", roomError);
+    throw new Error("Failed to add participant to room");
+  }
+}

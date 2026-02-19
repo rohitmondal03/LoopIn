@@ -115,7 +115,7 @@ export default function NotFound({ roomCode, onGoBack }: RoomNotFoundProps) {
       {/* Footer */}
       <footer className="flex justify-center items-center py-4 relative z-10">
         <p className="text-muted-foreground/40 text-xs">
-          © 2025 SyncWatch. All rights reserved.
+          © 2025 LoopIn. All rights reserved.
         </p>
       </footer>
     </div>

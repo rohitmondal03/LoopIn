@@ -6,6 +6,7 @@ import {
   getVideoDetails,
   parseYouTubeDuration,
 } from "../youtube";
+import { fetchCurrentUser } from "./users";
 
 export async function getRoomMusicQueue(roomId: string) {
   const { data, error } = await (await createServerClient())
@@ -72,9 +73,7 @@ export const addMusicToQueue = async (url: string, roomId: string) => {
   console.log("next pos", nextPosition);
 
   // get userId
-  const user = await (await createServerClient()).auth
-    .getUser()
-    .then((data) => data.data.user);
+  const user = await fetchCurrentUser();
 
   if(!user){
     console.error("User not found");

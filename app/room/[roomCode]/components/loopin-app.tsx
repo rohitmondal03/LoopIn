@@ -2,9 +2,9 @@ import { TopNav } from "./top-nav"
 import { RoomPanel } from "./room-panel"
 import { MediaPlayer } from "./media-player"
 import { InteractionPanel } from "./interaction-panel"
-import { createServerClient } from "@/lib/supabase"
 import { redirect } from "next/navigation"
 import { fetchRoomByCode } from "@/lib/actions/room"
+import { fetchCurrentUser } from "@/lib/actions/users"
 
 type TLoopInApp = {
   roomCode: string,
@@ -19,10 +19,7 @@ export async function LoopInApp({ roomCode }: TLoopInApp) {
     id,
   } = await fetchRoomByCode(roomCode);
 
-
-  const user = await (await createServerClient()).auth
-    .getUser()
-    .then((data) => data.data.user);
+  const user = await fetchCurrentUser();
 
   if (!user) redirect('/');
 

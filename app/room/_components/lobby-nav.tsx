@@ -4,18 +4,19 @@ import { Button } from "@/components/ui/button"
 import { Bell, ChevronDown, Radio } from "lucide-react"
 import { useState } from "react"
 
+
 export function LobbyNav() {
-  const [hasNotifications] = useState(true)
+  const [hasNotifications] = useState(true);
 
   return (
     <nav className="flex items-center justify-between px-6 py-4">
       {/* Logo */}
       <div className="flex items-center gap-2.5">
-        <div className="h-9 w-9 rounded-xl bg-primary/20 flex items-center justify-center">
-          <Radio className="h-4.5 w-4.5 text-primary" />
+        <div className="size-9 rounded-xl bg-primary/20 flex items-center justify-center">
+          <Radio className="size-4.5 text-primary" />
         </div>
         <span className="text-foreground font-semibold text-lg tracking-tight">
-          SyncWatch
+          LoopIn
         </span>
       </div>
 

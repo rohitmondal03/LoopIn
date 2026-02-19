@@ -21,3 +21,14 @@ export const fetchUserNameByID = async (userId: string) => {
 
   return data.full_name as string;
 };
+
+export const fetchCurrentUser = async() => {
+  const supabase = await createServerClient();
+  const { data: user } = await supabase.auth.getUser();
+
+  if(!user || !user.user) {
+    throw new Error("User not found");
+  }
+
+  return user.user;
+}

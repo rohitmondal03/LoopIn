@@ -1,12 +1,13 @@
 interface Room {
   id: string
-  full_name: string
+  name: string
   mediaType?: "youtube" | "spotify"
   is_private: boolean
   password?: string
   host_id: string
   room_code: string
 }
+
 interface RoomParticipant {
   user_id: string
   room_id: string

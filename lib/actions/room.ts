@@ -1,8 +1,19 @@
 "use server";
 
 import { nanoid } from "nanoid";
-import { createServerClient } from "../supabase";
 import { revalidatePath } from "next/cache";
+import { createServerClient } from "../supabase";
+import { fetchCurrentUser, fetchUserNameByID } from "./users";
+import { addParticipantToRoom } from "./room-participants";
+
+// check if ROOM CODE entered is current user's room or not ?
+export async function isRoomOwner(roomCode: string) {
+  const user = await fetchCurrentUser();
+
+  const roomDetials = await fetchRoomsBasicDetailsByCode(roomCode);
+
+  return roomDetials.host_id === user.id;
+}
 
 export async function createRoom(roomData: {
   roomName: string;
@@ -11,13 +22,7 @@ export async function createRoom(roomData: {
 }) {
   const { isPrivate, roomName, roomPassword } = roomData;
 
-  const user = await (await createServerClient()).auth
-    .getUser()
-    .then((data) => data.data.user);
-
-  if (!user) {
-    throw new Error("Unauthorized");
-  }
+  const user = await fetchCurrentUser();
 
   if (isPrivate && (!roomPassword || roomPassword?.trim().length === 0)) {
     console.error("Room password is required");
@@ -64,13 +69,7 @@ export async function createRoom(roomData: {
 
 // hosts recent rooms
 export const fetchHostsRecentRooms = async () => {
-  const host = await (await createServerClient()).auth
-    .getUser()
-    .then((data) => data.data.user);
-
-  if (!host) {
-    throw new Error("Unauthorized");
-  }
+  const host = await fetchCurrentUser();
 
   const { data, error } = await (await createServerClient())
     .from("rooms")
@@ -91,7 +90,7 @@ export const fetchHostsRecentRooms = async () => {
 export const fetchRoomByCode = async (roomCode: string) => {
   const { data, error } = await (await createServerClient())
     .from("rooms")
-    .select("room_code, name, is_private, created_at, host_id, is_playing, id")
+    .select("*")
     .eq("room_code", roomCode)
     .single();
 
@@ -100,23 +99,23 @@ export const fetchRoomByCode = async (roomCode: string) => {
     throw new Error("Failed to fetch room");
   }
 
-  return data;
+  return data as Room;
 };
 
 // fetch Room's basic details
 export const fetchRoomsBasicDetailsByCode = async (roomCode: string) => {
   const { data, error } = await (await createServerClient())
     .from("rooms")
-    .select("room_code, name, host_id, is_playing")
+    .select("name, host_id, is_playing")
     .eq("room_code", roomCode)
     .single();
 
-  if(error) {
+  if (error) {
     console.error("Error fetching rooms:", error);
     throw new Error("Failed to fetch rooms");
   }
 
-  if(!data) {
+  if (!data) {
     console.error("Room not found");
     throw new Error("Room not found");
   }
@@ -126,8 +125,8 @@ export const fetchRoomsBasicDetailsByCode = async (roomCode: string) => {
     name: string;
     host_id: string;
     is_playing: boolean;
-  }
-}
+  };
+};
 
 // handle ROOM NAME change
 export const handleRoomNameChange = async (
@@ -155,15 +154,53 @@ export const isRoomPrivate = async (roomCode: string) => {
     .eq("room_code", roomCode.trim())
     .single();
 
-  if(error) {
+  if (error) {
     console.error("Error fetching room:", error);
     throw new Error("Failed to fetch room");
   }
 
-  if(!data) {
+  if (!data) {
     console.error("Room not found");
     throw new Error("Check ROOM CODE and try again");
   }
 
   return data as { is_private: boolean };
+};
+
+// checks and basic detials of a room before joining a ROOM by code
+export const beforeRoomJoinChecks = async (roomCode: string) => {
+  return await fetchRoomsBasicDetailsByCode(roomCode)
+    .then(async (data) => {
+      // check if current session user is owner itself
+      await isRoomOwner(roomCode);
+
+      // get HOST'S NAME from "host_id"
+      const hostName = await fetchUserNameByID(data.host_id);
+
+      return {
+        ...data,
+        host_name: hostName,
+      };
+    })
+    .catch((error) => {
+      console.error("Error fetching room:", error);
+      throw new Error(error.message);
+    });
+};
+
+// Join a room with roomCode and password
+export const joinRoomByCode = async (roomCode: string, password: string) => {
+  const currentUser = await fetchCurrentUser();
+
+  // check if room is private or not
+  const isPrivate = await isRoomPrivate(roomCode);
+
+  if (isPrivate.is_private) {
+    if (password.trim() === "") {
+      throw new Error("Password cannot be empty");
+    }
+  }
+
+  // add user to room_participant
+  await addParticipantToRoom(roomCode, currentUser.id);
 };

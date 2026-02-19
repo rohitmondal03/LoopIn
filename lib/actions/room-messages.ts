@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createServerClient } from "../supabase";
 import { fetchRoomByCode } from "./room";
 import { redirect } from "next/navigation";
+import { fetchCurrentUser } from "./users";
 
 export async function getRoomMessages(roomCode: string) {
   const { id: roomId } = await fetchRoomByCode(roomCode);
@@ -59,13 +60,7 @@ export async function sendRoomMessage(roomId: string, message: string) {
     throw new Error("Message cannot be empty");
   };
 
-  const user = await (await createServerClient()).auth
-    .getUser()
-    .then((data) => data.data.user);
-
-  if (!user) {
-    redirect("/");
-  }
+  const user = await fetchCurrentUser()
 
   const { error } = await (await createServerClient())
     .from("room_messages")
